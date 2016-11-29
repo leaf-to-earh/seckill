@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dao.SeckillDao">
+	<update id="reduceQuantity">
+		update
+		seckill
+		set quantity=quantity-1
+		<!-- where start_time <![CDATA[<=]]> #{killTime} and end_time <![CDATA[>=]]> 
+			#{killTime} -->
+		where #{killTime} between start_time and end_time
+		and seckill_id = #{seckillId}
+		and quantity > 0
+	</update>
+	<select id="queryById" parameterType="long" resultType="Seckill">
+		select
+		seckill_id, name, quantity, start_time, end_time, create_time
+		from seckill
+		where seckill_id = #{seckillId}
+	</select>
+	<select id="queryAll" resultType="Seckill">
+		select * from
+		(select rownum r,t.* from
+		(select seckill_id, name, quantity, start_time, end_time, create_time
+		from seckill
+		order by create_time desc) t where rownum <![CDATA[<=]]>
+		(#{offset}+#{limit}))
+		where r <![CDATA[>=]]>
+		#{offset}
+	</select>
+</mapper>
